@@ -26,32 +26,28 @@ let baseOptions = {
 
 let defaultOptions = {
   scales: {
-    yAxes: [
-      {
-        ticks: {
-          maxTicksLimit: 4
-        },
-        scaleLabel: {
-          fontSize: 16,
-          // fontStyle: "bold",
-          fontColor: "#333"
-        }
+    y: {
+      ticks: {
+        maxTicksLimit: 4
+      },
+      scaleLabel: {
+        fontSize: 16,
+        // fontStyle: "bold",
+        fontColor: "#333"
       }
-    ],
-    xAxes: [
-      {
-        gridLines: {
-          drawOnChartArea: false
-        },
-        scaleLabel: {
-          fontSize: 16,
-          // fontStyle: "bold",
-          fontColor: "#333"
-        },
-        time: {},
-        ticks: {}
-      }
-    ]
+    },
+    x: {
+      gridLines: {
+        drawOnChartArea: false
+      },
+      scaleLabel: {
+        fontSize: 16,
+        // fontStyle: "bold",
+        fontColor: "#333"
+      },
+      time: {},
+      ticks: {}
+    }
   }
 };
 
@@ -80,37 +76,37 @@ let setTitle = function (options, title) {
 
 let setMin = function (options, min) {
   if (min !== null) {
-    options.scales.yAxes[0].ticks.min = toFloat(min);
+    options.scales.y.ticks.min = toFloat(min);
   }
 };
 
 let setMax = function (options, max) {
-  options.scales.yAxes[0].ticks.max = toFloat(max);
+  options.scales.y.ticks.max = toFloat(max);
 };
 
 let setBarMin = function (options, min) {
   if (min !== null) {
-    options.scales.xAxes[0].ticks.min = toFloat(min);
+    options.scales.x.ticks.min = toFloat(min);
   }
 };
 
 let setBarMax = function (options, max) {
-  options.scales.xAxes[0].ticks.max = toFloat(max);
+  options.scales.x.ticks.max = toFloat(max);
 };
 
 let setStacked = function (options, stacked) {
-  options.scales.xAxes[0].stacked = !!stacked;
-  options.scales.yAxes[0].stacked = !!stacked;
+  options.scales.x.stacked = !!stacked;
+  options.scales.y.stacked = !!stacked;
 };
 
 let setXtitle = function (options, title) {
-  options.scales.xAxes[0].scaleLabel.display = true;
-  options.scales.xAxes[0].scaleLabel.labelString = title;
+  options.scales.x.scaleLabel.display = true;
+  options.scales.x.scaleLabel.labelString = title;
 };
 
 let setYtitle = function (options, title) {
-  options.scales.yAxes[0].scaleLabel.display = true;
-  options.scales.yAxes[0].scaleLabel.labelString = title;
+  options.scales.y.scaleLabel.display = true;
+  options.scales.y.scaleLabel.labelString = title;
 };
 
 // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
@@ -132,8 +128,8 @@ let setLabelSize = function (chart, data, options) {
   } else if (maxLabelSize < 10) {
     maxLabelSize = 10;
   }
-  if (!options.scales.xAxes[0].ticks.callback) {
-    options.scales.xAxes[0].ticks.callback = function (value) {
+  if (!options.scales.x.ticks.callback) {
+    options.scales.x.ticks.callback = function (value) {
       value = toStr(value);
       if (value.length > maxLabelSize) {
         return value.substring(0, maxLabelSize - 2) + "...";
@@ -184,22 +180,22 @@ let setFormatOptions = function(chart, options, chartType) {
   }
 
   if (chartType !== "pie") {
-    let myAxes = options.scales.yAxes;
+    let axis = options.scales.y;
     if (chartType === "bar") {
-      myAxes = options.scales.xAxes;
+      axis = options.scales.x;
     }
 
     if (formatOptions.byteScale) {
-      if (!myAxes[0].ticks.stepSize) {
-        myAxes[0].ticks.stepSize = formatOptions.byteScale / 2;
+      if (!axis.ticks.stepSize) {
+        axis.ticks.stepSize = formatOptions.byteScale / 2;
       }
-      if (!myAxes[0].ticks.maxTicksLimit) {
-        myAxes[0].ticks.maxTicksLimit = 4;
+      if (!axis.ticks.maxTicksLimit) {
+        axis.ticks.maxTicksLimit = 4;
       }
     }
 
-    if (!myAxes[0].ticks.callback) {
-      myAxes[0].ticks.callback = function (value) {
+    if (!axis.ticks.callback) {
+      axis.ticks.callback = function (value) {
         return formatValue("", value, formatOptions, true);
       };
     }
@@ -212,7 +208,7 @@ let setFormatOptions = function(chart, options, chartType) {
         if (label) {
           label += ': ';
         }
-        return label + '(' + item.xLabel + ', ' + item.yLabel + ')';
+        return label + '(' + item.index + ', ' + item.value + ')';
       };
     } else if (chartType === "bubble") {
       options.tooltips.callbacks.label = function (item, data) {
@@ -221,7 +217,7 @@ let setFormatOptions = function(chart, options, chartType) {
           label += ': ';
         }
         let dataPoint = data.datasets[item.datasetIndex].data[item.index];
-        return label + '(' + item.xLabel + ', ' + item.yLabel + ', ' + dataPoint.v + ')';
+        return label + '(' + dataPoint.x + ', ' + dataPoint.y + ', ' + dataPoint.v + ')';
       };
     } else if (chartType === "pie") {
       // need to use separate label for pie charts
@@ -241,13 +237,12 @@ let setFormatOptions = function(chart, options, chartType) {
         return formatValue(dataLabel, data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index], formatOptions);
       };
     } else {
-      let valueLabel = chartType === "bar" ? "xLabel" : "yLabel";
       options.tooltips.callbacks.label = function (tooltipItem, data) {
         let label = data.datasets[tooltipItem.datasetIndex].label || '';
         if (label) {
           label += ': ';
         }
-        return formatValue(label, tooltipItem[valueLabel], formatOptions);
+        return formatValue(label, tooltipItem.value, formatOptions);
       };
     }
   }
@@ -405,17 +400,17 @@ let createDataTable = function (chart, options, chartType, library) {
     let gte29 = "math" in library.helpers;
     let ticksKey = gte29 ? "ticks" : "time";
     if (notnull(xmin)) {
-      options.scales.xAxes[0][ticksKey].min = toDate(xmin).getTime();
+      options.scales.x[ticksKey].min = toDate(xmin).getTime();
     }
     if (notnull(xmax)) {
-      options.scales.xAxes[0][ticksKey].max = toDate(xmax).getTime();
+      options.scales.x[ticksKey].max = toDate(xmax).getTime();
     }
   } else if (chart.xtype === "number") {
     if (notnull(xmin)) {
-      options.scales.xAxes[0].ticks.min = xmin;
+      options.scales.x.ticks.min = xmin;
     }
     if (notnull(xmax)) {
-      options.scales.xAxes[0].ticks.max = xmax;
+      options.scales.x.ticks.max = xmax;
     }
   }
 
@@ -451,24 +446,24 @@ let createDataTable = function (chart, options, chartType, library) {
 
     let timeDiff = (maxTime - minTime) / (86400 * 1000.0);
 
-    if (!options.scales.xAxes[0].time.unit) {
+    if (!options.scales.x.time.unit) {
       let step;
       if (year || timeDiff > 365 * 10) {
-        options.scales.xAxes[0].time.unit = "year";
+        options.scales.x.time.unit = "year";
         step = 365;
       } else if (month || timeDiff > 30 * 10) {
-        options.scales.xAxes[0].time.unit = "month";
+        options.scales.x.time.unit = "month";
         step = 30;
       } else if (day || timeDiff > 10) {
-        options.scales.xAxes[0].time.unit = "day";
+        options.scales.x.time.unit = "day";
         step = 1;
       } else if (hour || timeDiff > 0.5) {
-        options.scales.xAxes[0].time.displayFormats = {hour: "MMM D, h a"};
-        options.scales.xAxes[0].time.unit = "hour";
+        options.scales.x.time.displayFormats = {hour: "MMM D, h a"};
+        options.scales.x.time.unit = "hour";
         step = 1 / 24.0;
       } else if (minute) {
-        options.scales.xAxes[0].time.displayFormats = {minute: "h:mm a"};
-        options.scales.xAxes[0].time.unit = "minute";
+        options.scales.x.time.displayFormats = {minute: "h:mm a"};
+        options.scales.x.time.unit = "minute";
         step = 1 / 24.0 / 60.0;
       }
 
@@ -477,17 +472,17 @@ let createDataTable = function (chart, options, chartType, library) {
         if (week && step === 1) {
           unitStepSize = Math.ceil(unitStepSize / 7.0) * 7;
         }
-        options.scales.xAxes[0].time.unitStepSize = unitStepSize;
+        options.scales.x.time.unitStepSize = unitStepSize;
       }
     }
 
-    if (!options.scales.xAxes[0].time.tooltipFormat) {
+    if (!options.scales.x.time.tooltipFormat) {
       if (day) {
-        options.scales.xAxes[0].time.tooltipFormat = "ll";
+        options.scales.x.time.tooltipFormat = "ll";
       } else if (hour) {
-        options.scales.xAxes[0].time.tooltipFormat = "MMM D, h a";
+        options.scales.x.time.tooltipFormat = "MMM D, h a";
       } else if (minute) {
-        options.scales.xAxes[0].time.tooltipFormat = "h:mm a";
+        options.scales.x.time.tooltipFormat = "h:mm a";
       }
     }
   }
@@ -523,10 +518,10 @@ export default class {
     let data = createDataTable(chart, options, chartType || "line", this.library);
 
     if (chart.xtype === "number") {
-      options.scales.xAxes[0].type = "linear";
-      options.scales.xAxes[0].position = "bottom";
+      options.scales.x.type = "linear";
+      options.scales.x.position = "bottom";
     } else {
-      options.scales.xAxes[0].type = chart.xtype === "string" ? "category" : "time";
+      options.scales.x.type = chart.xtype === "string" ? "category" : "time";
     }
 
     this.drawChart(chart, "line", data, options);
@@ -575,7 +570,7 @@ export default class {
     let options;
     if (chartType === "bar") {
       let barOptions = merge(baseOptions, defaultOptions);
-      delete barOptions.scales.yAxes[0].ticks.maxTicksLimit;
+      delete barOptions.scales.y.ticks.maxTicksLimit;
       options = jsOptionsFunc(barOptions, hideLegend, setTitle, setBarMin, setBarMax, setStacked, setXtitle, setYtitle)(chart, chart.options);
     } else {
       options = jsOptions(chart, chart.options);
@@ -608,8 +603,8 @@ export default class {
 
     let data = createDataTable(chart, options, chartType, this.library);
 
-    options.scales.xAxes[0].type = "linear";
-    options.scales.xAxes[0].position = "bottom";
+    options.scales.x.type = "linear";
+    options.scales.x.position = "bottom";
 
     this.drawChart(chart, chartType, data, options);
   }

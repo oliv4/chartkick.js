@@ -56,5 +56,18 @@ export default [
     plugins: [
       buble()
     ]
+  },
+  {
+    input: "src/Chart.bundle.js",
+    output: {
+      name: "Chart",
+      file: "dist/Chart.bundle.js",
+      format: "umd",
+    },
+    plugins: [
+      resolve(),
+      commonjs(),
+      buble()
+    ]
   }
 ];
