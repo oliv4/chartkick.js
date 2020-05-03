@@ -472,7 +472,7 @@ let createDataTable = function (chart, options, chartType, library) {
         if (week && step === 1) {
           unitStepSize = Math.ceil(unitStepSize / 7.0) * 7;
         }
-        options.scales.x.time.unitStepSize = unitStepSize;
+        options.scales.x.time.stepSize = unitStepSize;
       }
     }
 
