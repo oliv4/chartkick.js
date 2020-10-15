@@ -320,7 +320,7 @@ export default class {
         loadOptions.mapsApiKey = config.mapsApiKey;
       }
 
-      this.library.charts.load("current", loadOptions);
+      this.library.charts.load(chart.options.library.version || "current", loadOptions);
     }
   }
 
